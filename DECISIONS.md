@@ -242,3 +242,37 @@ small variants. To be decided with clinical teammate (looking at K=4/5 profiles)
 - [ ] Bayesian projection (Step 3); GMI (Step 4); VALOR dashboard (Step 5).
 - [ ] Name LCA phenotypes clinically (with teammate) for the write-up.
 - [ ] Verify EOI/prize/rules details on official Vivli page.
+
+### D-005 RESOLVED — GMI funding side is pathogen(genus)-level via Categories codes (2026-05-28)
+**Evidence (hub_inspect + hub_categories):** Hub total $18.87B / 18,853 projects.
+No drug-class field exists (Research Area = type: Therapeutics/Diagnostics/etc;
+Research Subcategory = stage: Discovery/Development/Approval; Product Name 97%
+missing). Therefore GMI funding side CANNOT be drug-class-resolved.
+**Decision:** GMI is **pathogen × year** on the funding side. Drug-class
+resolution dropped on funding (kept on burden side from MICs); asymmetry stated
+openly.
+**Attribution source:** the structured `Categories` field (coded taxonomy,
+e.g. "1504 Infectious Agent / Bacteria / Gram negative / Klebsiella spp.") is
+PRIMARY — more reliable than the free-text 'Individual Infectious Agent' field
+(57% missing). Cross-validated against free-text: Categories 515 Kp / 469 Ab
+vs free-text 509 / 414 — consistent, Categories catches slightly more.
+**Genus-vs-species caveat (must state in report):** Hub attributes to GENUS
+("Klebsiella spp.", "Acinetobacter spp."), surveillance is SPECIES
+(K. pneumoniae, A. baumannii). K. pneumoniae / A. baumannii dominate clinical
+isolates of their genera, so genus funding ≈ species proxy — declared as an
+assumption, not hidden.
+**Funding figures (Categories, Amount USD):**
+  - Klebsiella spp.: 515 projects, ~$593M
+  - Acinetobacter spp.: 469 projects, ~$610M
+  - Broad "Gram negative" (unattributable pool): 5,130 projects, ~$4.90B
+**Attribution rule (pre-registered, both built):**
+  - BASE CASE: pathogen-named funding only (the ~$593M / ~$610M).
+  - SENSITIVITY: add a proportional share of the $4.90B broad Gram-negative
+    pool allocated down to each genus.
+
+### D-015 — Funding-year attribution (OPEN, leaning Start Year) (2026-05-28)
+Hub has Start Year (1975–2026) and End Year (to 2036). Leaning: attribute a
+project's USD to its Start Year for the FAP (simplest, defensible), with a
+sensitivity option to spread evenly across Start..End. To finalize when building
+the FAP. Note funding predates surveillance (pre-2004) — will restrict FAP years
+to overlap the burden window.

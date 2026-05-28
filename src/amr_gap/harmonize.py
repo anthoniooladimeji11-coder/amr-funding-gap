@@ -162,6 +162,14 @@ def _melt_wide(
             meta[c] = pd.NA
     meta["dataset"] = dataset
     meta["organism"] = meta["organism"].map(norm_organism)
+    # Age/gender are encoded differently across datasets (ATLAS uses age BANDS
+    # like '61+', KEYSTONE uses numeric age). Keep them as consistent strings so
+    # they concatenate cleanly; we are not doing arithmetic on them in the core
+    # model. A numeric band-midpoint can be derived later if ever needed.
+    for c in ["age", "gender", "country", "region", "specimen", "isolate_id"]:
+        meta[c] = meta[c].astype("string")
+    # Year: coerce to nullable integer (handles stray non-numeric years safely).
+    meta["year"] = pd.to_numeric(meta["year"], errors="coerce").astype("Int64")
 
     # Long-format MIC rows.
     frames = []

@@ -216,3 +216,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---- GFAO / project data: NEVER commit raw or processed challenge data ----
+data/
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.dta
+# allow a tiny sample/synthetic file if we ever need one, explicitly:
+!data/sample_synthetic.csv

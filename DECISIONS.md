@@ -299,3 +299,44 @@ BIC-optimal K=6. Acinetobacter remains K=4 (BIC-optimal and clean).
 module still fits & reports K=2..6 BIC for transparency, then selects the forced K.
 **Caveat to note in report:** the ~1% class is the least clean phenotype (may
 reflect incomplete testing or a true intermediate mechanism) — do not over-interpret.
+
+---
+
+## NEXT SESSION — starting point & how to resume
+
+**Status:** Foundation complete and committed. Burden-side phenotypes locked
+(Acinetobacter K=4, Klebsiella K=5). Funding side complete (FAP base + 2
+sensitivity variants). Both big design unknowns resolved (D-005 funding
+granularity; D-014 Klebsiella K).
+
+**The one blocker before the burden half of the GMI:** source the external
+burden weights. This is a sourcing task (like the breakpoints were).
+  - PRIMARY candidate: IHME / GRAM "Global burden of bacterial antimicrobial
+    resistance" (Lancet 2022 + updates). Publishes DEATHS and DALYs attributable
+    to specific pathogen × drug-resistance combinations by GBD region.
+    Downloadable via the IHME GBD Results Tool.
+    -> Need: deaths and/or DALYs for K. pneumoniae and A. baumannii, by region,
+       ideally split by resistance (e.g. carbapenem-resistant).
+  - WHO GLASS: better for resistance PREVALENCE by country (use for the
+    calibration step), weaker on attributable mortality.
+  - DECISION TO MAKE (with teammate): which source + which metric (deaths vs
+    DALYs) anchors the Clinical Burden Score. Document as a new D-xxx entry.
+
+**Then, in order (all buildable once burden weights are in hand):**
+  1. Burden side of GMI: resistance prevalence (from phenotypes) x external
+     burden weight -> CBS per pathogen × region × year.
+  2. GMI itself: funding share (FAP) vs burden share, per pathogen × year;
+     base + sensitivity; plus the pipeline cross-flag (Hub pipeline candidates
+     to separate "neglected" from "pipeline-served").
+  3. Calibration weighting (Deville–Särndal raked to GLASS) — outstanding from
+     Step 1; needed before the burden prevalences are population-representative.
+  4. Step 3 Bayesian projection (Stan/cmdstanpy) — resistance trajectories to
+     2030; heaviest modeling piece.
+  5. VALOR Streamlit dashboard (Step 5).
+
+**Reminders / housekeeping still open:**
+  - Name the LCA phenotypes clinically for the write-up (by PROFILE, not class
+    number — labels are arbitrary integers and differ between runs).
+  - Funding-year attribution rule finalize (D-015, leaning Start Year).
+  - Verify official Vivli EOI/prize/rules details before relying on them.
+  - 5-page report limit incl. figures — design figures early.

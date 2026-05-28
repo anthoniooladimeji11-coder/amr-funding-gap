@@ -276,3 +276,26 @@ project's USD to its Start Year for the FAP (simplest, defensible), with a
 sensitivity option to spread evenly across Start..End. To finalize when building
 the FAP. Note funding predates surveillance (pre-2004) — will restrict FAP years
 to overlap the burden window.
+
+### D-014 RESOLVED — Klebsiella K = 5 (clinical + parsimony choice) (2026-05-28)
+**Decision:** Klebsiella pneumoniae LCA fixed at **K=5 classes**, overriding the
+BIC-optimal K=6. Acinetobacter remains K=4 (BIC-optimal and clean).
+**Why:** Comparing K=4/5/6 profiles with the clinical teammate:
+  - 4->5 is justified: it splits the ESBL/FQ-resistant class into
+    aminoglycoside-RESISTANT vs aminoglycoside-SUSCEPTIBLE variants — a real,
+    treatment-relevant distinction (aminoglycosides are a viable option for the
+    susceptible group).
+  - 5->6 only adds a rare (~0.6%, 425-isolate) carbapenem-R / FQ-S class. Genuine
+    but tiny; on a 5-page submission it invites "why is this its own phenotype?"
+    and isn't worth defending vs the parsimony cost.
+**K=5 Klebsiella phenotypes (P(NS|class)):**
+  - Susceptible (~53%): all ~0%.
+  - Aminoglycoside-S ESBL (~15%): cipro 100%, levo 70%, aztreonam 61%, gent 0%, amik 1%, carbapenems 0%.
+  - Aminoglycoside-R ESBL (~18%): cipro 100%, gent 98%, aztreonam 95%, levo 89%, carbapenems 0%.
+  - XDR (~13%): carbapenems 96–100%, FQ 98–100%, aztreonam 96%, amik 63%, colistin 19%.
+  - Small carbapenem-intermediate / aztreonam group (~1%): partial carbapenem, aztreonam 94%, FQ low.
+  Assignment clean (mean max-prob 0.92).
+**Implementation:** `FORCED_K = {"klebsiella pneumoniae": 5}` in lca.py; the
+module still fits & reports K=2..6 BIC for transparency, then selects the forced K.
+**Caveat to note in report:** the ~1% class is the least clean phenotype (may
+reflect incomplete testing or a true intermediate mechanism) — do not over-interpret.

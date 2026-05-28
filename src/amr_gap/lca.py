@@ -49,6 +49,17 @@ PANELS = {
     ),
 }
 
+# Per-pathogen forced number of classes, overriding BIC-auto-selection.
+# Klebsiella: K=5 chosen by parsimony + interpretability (clinical decision,
+# DECISIONS.md D-014): BIC favored 6 but the 6th class was a rare (~0.6%)
+# carbapenem-R/FQ-S split; K=5 keeps every clinically nameable phenotype
+# (susceptible / aminoglycoside-S ESBL / aminoglycoside-R ESBL / XDR / small
+# carbapenem-intermediate) without an over-split class.
+# Acinetobacter: left to BIC (best K=4 was both optimal and clean).
+FORCED_K = {
+    "klebsiella pneumoniae": 5,
+}
+
 
 def build_matrix(df: pd.DataFrame, organism: str, panel: list[str],
                  min_drugs: int) -> pd.DataFrame:
@@ -76,8 +87,9 @@ def entropy_of_assignment(proba: np.ndarray) -> float:
     return float(ent.mean())
 
 
-def fit_pathogen(wide: pd.DataFrame, kmax: int) -> tuple[int, pd.DataFrame, dict]:
-    """Fit K=2..kmax, pick best by BIC. Returns (best_k, labeled_df, report)."""
+def fit_pathogen(wide: pd.DataFrame, kmax: int,
+                 forced_k: int | None = None) -> tuple[int, pd.DataFrame, dict]:
+    """Fit K=2..kmax, report all by BIC, then select forced_k if given else BIC-best."""
     # stepmix expects a numpy array; missing as np.nan is supported.
     X = wide.to_numpy(dtype=float)
 
@@ -102,9 +114,15 @@ def fit_pathogen(wide: pd.DataFrame, kmax: int) -> tuple[int, pd.DataFrame, dict
         print(f"    K={k}:  BIC={bic:,.0f}  AIC={aic:,.0f}  "
               f"assign_entropy={ent:.3f}  mean_maxprob={mean_maxp:.3f}")
 
-    best_k = min(results, key=lambda k: results[k]["bic"])
+    bic_best = min(results, key=lambda k: results[k]["bic"])
+    if forced_k is not None and forced_k in results:
+        best_k = forced_k
+        print(f"  -> best K by BIC = {bic_best}; "
+              f"USING FORCED K = {best_k} (clinical/parsimony choice, D-014)")
+    else:
+        best_k = bic_best
+        print(f"  -> best K by BIC = {best_k}")
     best = results[best_k]
-    print(f"  -> best K by BIC = {best_k}")
 
     # Class profiles: P(non-susceptible | class) per drug.
     model = best["model"]
@@ -142,7 +160,8 @@ def main() -> None:
         print(f"  isolates: {len(wide):,}  | drugs: {len(panel)}")
         print(f"  fitting K=2..{args.kmax} ...")
 
-        best_k, labeled, report = fit_pathogen(wide, args.kmax)
+        best_k, labeled, report = fit_pathogen(
+            wide, args.kmax, forced_k=FORCED_K.get(organism))
 
         print(f"\n  Class sizes (K={best_k}):")
         print(report["sizes"].to_string())

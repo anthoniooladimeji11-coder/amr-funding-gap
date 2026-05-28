@@ -227,3 +227,4 @@ data/
 *.dta
 # allow a tiny sample/synthetic file if we ever need one, explicitly:
 !data/sample_synthetic.csv
+.DS_Store

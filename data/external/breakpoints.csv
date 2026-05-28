@@ -1,0 +1,51 @@
+organism,antibiotic,standard,standard_version,S_max,R_min,unit,status,source_note
+# ============================================================================
+# BREAKPOINT TABLE - EUCAST v14.0 (2024) ONLY.
+# All values VERIFIED against the official EUCAST v14.0 PDF (Enterobacterales
+# and Acinetobacter spp. sheets). CLSI was intentionally NOT included because
+# CLSI M100 could not be accessed for verification; EUCAST is the sole primary
+# standard. This is stated as a methodological choice/limitation in the report.
+#
+# Conventions:
+#  - EUCAST publishes "S<=" and "R>". The engine classifies R when mic>=R_min,
+#    so R_min is set to the smallest doubling-dilution strictly ABOVE the EUCAST
+#    "R>" value. Where S_max==R>value (no intermediate zone), same rule applies.
+#  - "(bracketed)" = EUCAST breakpoint in brackets (dosing-dependent / caution).
+#  - no_breakpoint = EUCAST '-' or 'IE' (Insufficient Evidence): excluded from
+#    the S/I/R panel for that organism.
+#  - Panel chosen to cover the antimicrobial CATEGORIES needed for valid
+#    XDR/PDR phenotyping (carbapenems, polymyxins, aminoglycosides,
+#    fluoroquinolones, BL/BLI combinations, folate-pathway, monobactam, glycylcycline).
+# ============================================================================
+klebsiella pneumoniae,cefiderocol,EUCAST,EUCAST v14.0 (2024),2,4,mg/L,OK,Enterobacterales S<=2 R>2 (iron-depleted MHB note3); R_min=next dil
+klebsiella pneumoniae,meropenem,EUCAST,EUCAST v14.0 (2024),2,16,mg/L,OK,Enterobacterales non-meningitis S<=2 R>8; R_min=next dil above 8
+klebsiella pneumoniae,imipenem,EUCAST,EUCAST v14.0 (2024),2,8,mg/L,OK,Enterobacterales except Morganellaceae S<=2 R>4; R_min=next dil above 4
+klebsiella pneumoniae,doripenem,EUCAST,EUCAST v14.0 (2024),1,4,mg/L,OK,Enterobacterales S<=1 R>2; R_min=next dil above 2
+klebsiella pneumoniae,ertapenem,EUCAST,EUCAST v14.0 (2024),0.5,1,mg/L,OK,Enterobacterales S<=0.5 R>0.5 no I zone; R_min=next dil
+klebsiella pneumoniae,colistin,EUCAST,EUCAST v14.0 (2024),2,4,mg/L,OK,Enterobacterales S<=2 R>2 bracketed; R_min=next dil
+klebsiella pneumoniae,amikacin,EUCAST,EUCAST v14.0 (2024),8,16,mg/L,OK,Enterobacterales systemic S<=8 R>8 bracketed; R_min=next dil
+klebsiella pneumoniae,gentamicin,EUCAST,EUCAST v14.0 (2024),2,4,mg/L,OK,Enterobacterales systemic S<=2 R>2 bracketed; R_min=next dil
+klebsiella pneumoniae,tobramycin,EUCAST,EUCAST v14.0 (2024),2,4,mg/L,OK,Enterobacterales systemic S<=2 R>2 bracketed; R_min=next dil
+klebsiella pneumoniae,ciprofloxacin,EUCAST,EUCAST v14.0 (2024),0.25,1,mg/L,OK,Enterobacterales non-mening S<=0.25 R>0.5 ATU0.5; R_min=next dil above 0.5
+klebsiella pneumoniae,levofloxacin,EUCAST,EUCAST v14.0 (2024),0.5,2,mg/L,OK,Enterobacterales S<=0.5 R>1; R_min=next dil above 1
+klebsiella pneumoniae,ceftazidime-avibactam,EUCAST,EUCAST v14.0 (2024),8,16,mg/L,OK,Enterobacterales S<=8 R>8 (avibactam 4mg/L); R_min=next dil
+klebsiella pneumoniae,ceftolozane-tazobactam,EUCAST,EUCAST v14.0 (2024),2,4,mg/L,OK,Enterobacterales S<=2 R>2 (tazobactam 4mg/L); R_min=next dil
+klebsiella pneumoniae,aztreonam,EUCAST,EUCAST v14.0 (2024),1,8,mg/L,OK,Enterobacterales S<=1 R>4; R_min=next dil above 4
+klebsiella pneumoniae,trimethoprim-sulfamethoxazole,EUCAST,EUCAST v14.0 (2024),2,8,mg/L,OK,Enterobacterales S<=2 R>4 (TMP comp 1:19); R_min=next dil above 4
+klebsiella pneumoniae,tigecycline,EUCAST,EUCAST v14.0 (2024),,,mg/L,no_breakpoint,EUCAST tigecycline defined only for E. coli and C. koseri
+acinetobacter baumannii,meropenem,EUCAST,EUCAST v14.0 (2024),2,16,mg/L,OK,Acinetobacter non-mening S<=2 R>8; R_min=next dil above 8
+acinetobacter baumannii,imipenem,EUCAST,EUCAST v14.0 (2024),2,8,mg/L,OK,Acinetobacter S<=2 R>4; R_min=next dil above 4
+acinetobacter baumannii,doripenem,EUCAST,EUCAST v14.0 (2024),0.001,4,mg/L,OK,Acinetobacter S<=0.001 R>2 (effectively no S std dosing); R_min=next dil above 2
+acinetobacter baumannii,colistin,EUCAST,EUCAST v14.0 (2024),2,4,mg/L,OK,Acinetobacter S<=2 R>2 bracketed; R_min=next dil
+acinetobacter baumannii,amikacin,EUCAST,EUCAST v14.0 (2024),8,16,mg/L,OK,Acinetobacter systemic S<=8 R>8 bracketed; R_min=next dil
+acinetobacter baumannii,gentamicin,EUCAST,EUCAST v14.0 (2024),4,8,mg/L,OK,Acinetobacter systemic S<=4 R>4 bracketed; R_min=next dil
+acinetobacter baumannii,tobramycin,EUCAST,EUCAST v14.0 (2024),4,8,mg/L,OK,Acinetobacter systemic S<=4 R>4 bracketed; R_min=next dil
+acinetobacter baumannii,ciprofloxacin,EUCAST,EUCAST v14.0 (2024),0.001,2,mg/L,OK,Acinetobacter S<=0.001 R>1; R_min=next dil above 1
+acinetobacter baumannii,levofloxacin,EUCAST,EUCAST v14.0 (2024),0.5,2,mg/L,OK,Acinetobacter S<=0.5 R>1; R_min=next dil above 1
+acinetobacter baumannii,trimethoprim-sulfamethoxazole,EUCAST,EUCAST v14.0 (2024),2,8,mg/L,OK,Acinetobacter S<=2 R>4; R_min=next dil above 4
+acinetobacter baumannii,cefiderocol,EUCAST,EUCAST v14.0 (2024),,,mg/L,no_breakpoint,EUCAST Acinetobacter cefiderocol IE (PK/PD cutoff S<=2 only)
+acinetobacter baumannii,ertapenem,EUCAST,EUCAST v14.0 (2024),,,mg/L,no_breakpoint,EUCAST Acinetobacter ertapenem not listed
+acinetobacter baumannii,tigecycline,EUCAST,EUCAST v14.0 (2024),,,mg/L,no_breakpoint,EUCAST Acinetobacter tigecycline IE
+acinetobacter baumannii,ceftazidime-avibactam,EUCAST,EUCAST v14.0 (2024),,,mg/L,no_breakpoint,EUCAST Acinetobacter ceftazidime-avibactam not listed
+acinetobacter baumannii,ceftolozane-tazobactam,EUCAST,EUCAST v14.0 (2024),,,mg/L,no_breakpoint,EUCAST Acinetobacter ceftolozane-tazobactam not listed
+acinetobacter baumannii,aztreonam,EUCAST,EUCAST v14.0 (2024),,,mg/L,no_breakpoint,EUCAST Acinetobacter aztreonam not listed

@@ -148,3 +148,97 @@ real, some censored.
 - [ ] Confirm with Vivli whether SPIDAAR is available (low priority).
 - [ ] Verify official rules: EOI word count basis, Cross-Domain Award value.
 - [ ] 5-page final report limit (incl. figures) — design figures early.
+
+### D-009 — Isolate identity assigned before melting (2026-05-28)
+**Decision:** In the harmonizer, every source row gets a guaranteed-unique
+`isolate_id` BEFORE the wide→long melt: real id where present
+(`atlas:<id>`, `keystone:<id>`), else source row position (`sidero:row<N>`),
+always dataset-prefixed.
+**Why:** After melting, isolate identity cannot be recovered. SIDERO has no
+native id column; without this fix, grouping its drug-rows back into isolates
+was impossible (a metadata-tuple approximation would wrongly merge distinct
+isolates). This fix makes per-isolate pivoting correct for all three datasets.
+**Impact:** Step 1 re-run; row counts unchanged (17.48M total, 2.74M core).
+
+### D-010 — Age string / year Int64 across datasets (2026-05-28)
+**Decision:** `age`, `gender`, `country`, `region`, `specimen`, `isolate_id`
+forced to string; `year` coerced to nullable Int64.
+**Why:** Datasets encode age incompatibly (ATLAS uses bands like '61+';
+KEYSTONE uses numeric age). Mixed types broke the Parquet concat. Age is a
+covariate, not used in arithmetic, so string is lossless and safe.
+
+### D-011 — Breakpoints: EUCAST v14.0 only, verified against source PDF (2026-05-28)
+**Decision:** S/I/R classification uses EUCAST Clinical Breakpoint Tables
+v14.0 (2024) ONLY. CLSI dropped entirely.
+**Why:** EUCAST tables are free/official and were verified row-by-row against
+the actual PDF. CLSI M100 could not be accessed for verification; rather than
+enter unverifiable (and partly wrong) search-derived CLSI values, CLSI is
+omitted and documented as a limitation. EUCAST is the sole primary standard.
+**Corrections caught vs. search values:** Klebsiella ciprofloxacin was NOT
+0.001 (real ~S≤0.25/R>0.5); Acinetobacter ciprofloxacin IS 0.001 (genuine);
+Acinetobacter amikacin/gentamicin DO have (bracketed) breakpoints (search
+wrongly said none); Acinetobacter cefiderocol has NO clinical breakpoint
+(IE / PK-PD cutoff only); doripenem has real published values (not "derived").
+**Table:** 25 verified EUCAST rows + 7 confirmed no-breakpoint, committed to
+repo at data/external/breakpoints.csv (reference data, force-added past
+.gitignore). Panel widened with tobramycin + aztreonam for XDR category coverage.
+
+### D-012 — Censored-MIC-aware classification rule (2026-05-28)
+**Decision:** Classification respects censoring:
+'<=v' → S only if v ≤ S_max else Unresolved(U); '>v' → R only if v ≥ R_min
+else U; exact → standard rule. R_min set to next doubling-dilution above the
+EUCAST "R>" value so `mic >= R_min` reproduces EUCAST "R if mic > Rval".
+**Why:** '<=0.5' is not literally 0.5; forcing a call on a censored value that
+straddles the breakpoint would be wrong. U is honest uncertainty, not error.
+**Result on core pathogens:** of ~997k panel-drug calls, ~95% definitive
+(665k S, 263k R, 25k I); 4.4% U, concentrated in newer agents (cef-avi,
+cef-taz, cefiderocol) where censoring/edge values legitimately can't resolve.
+
+### D-013 — LCA design (Step 2) (2026-05-28)
+**Decision:** Latent Class Analysis via stepmix `binary_nan`, run SEPARATELY
+per pathogen, binary encoding (S=0; I/R=1; U=missing), missingness handled by
+full-information ML, fixed random_state=42, n_init=10. Clustering panels chosen
+by VARIATION (drugs near 0% or 100% NS, or very sparse, excluded):
+  - A. baumannii: amikacin, gentamicin, meropenem, imipenem, levofloxacin,
+    colistin (6 drugs); min 3 drugs tested per isolate → 45,012 isolates.
+  - K. pneumoniae: meropenem, imipenem, doripenem, ertapenem, amikacin,
+    gentamicin, ciprofloxacin, levofloxacin, aztreonam, colistin (10 drugs);
+    min 4 drugs → 73,824 isolates.
+**Why separate panels/pathogens:** different breakpoint availability and
+different resistance biology; pooling would just separate species. Thresholds
+chosen at the "cliff" in the isolate-survival curve (keeps large, well-
+characterized samples).
+**Pre-registered expectation (from co-resistance diagnostic):** Ab ≈ 2–3
+phenotypes incl. an XDR-but-colistin-sparing class; Kp ≈ 4–5 incl. susceptible
+/ FQ-ESBL / carbapenem-R / XDR. (Used to validate LCA output, not bias it.)
+
+### D-014 — LCA results & class-count choice (2026-05-28)
+**A. baumannii (K=4 by BIC, mean max-prob 0.92 — confident):**
+  - C0 (52%): XDR-like — ~96–100% NS to amik/gent/mero/imip/levo, colistin 4.7%
+  - C1 (33%): susceptible (wild-type)
+  - C2 (8%): carbapenem-R, aminoglycoside-S
+  - C3 (7%): aminoglycoside+FQ-R, carbapenem-S
+  Colistin correctly isolated as the spared last-line agent. Matches prediction.
+**K. pneumoniae (BIC favored K=6):** classes interpretable (susceptible;
+several ESBL/FQ-resistant variants; carbapenem-R; XDR with colistin 19%; a tiny
+425-isolate carbapenem-R/FQ-S group). **OPEN:** whether K=6 is too granular vs
+K=4/5 for parsimony/defensibility — BIC kept improving, but two classes are
+small variants. To be decided with clinical teammate (looking at K=4/5 profiles).
+
+### Files added this session
+- src/amr_gap/harmonize.py (updated: unique ids, censoring, type fixes)
+- src/amr_gap/breakpoints.py (CLSI/EUCAST engine, censoring-aware, VERIFY-guard)
+- data/external/breakpoints.csv (EUCAST v14.0 verified table — committed)
+- src/amr_gap/lca_diagnostic.py, lca_threshold.py, coresistance.py (planning)
+- src/amr_gap/lca.py (Step 2 LCA)
+- data/processed/lca_acba.parquet, lca_klpn.parquet (labeled isolates — gitignored)
+
+### Updated open TODOs
+- [ ] DECIDE Klebsiella K (4/5/6) — see D-014.
+- [ ] Inspect Hub funding column VALUES → finalize GMI granularity (D-005).
+- [ ] Choose/document external burden source for CBS (IHME/GRAM vs GLASS).
+- [ ] Funding-year attribution rule (start vs spread vs end year).
+- [ ] Calibration weighting (Deville–Särndal raked to GLASS) — Step 1 finish.
+- [ ] Bayesian projection (Step 3); GMI (Step 4); VALOR dashboard (Step 5).
+- [ ] Name LCA phenotypes clinically (with teammate) for the write-up.
+- [ ] Verify EOI/prize/rules details on official Vivli page.

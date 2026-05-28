@@ -162,6 +162,17 @@ def _melt_wide(
             meta[c] = pd.NA
     meta["dataset"] = dataset
     meta["organism"] = meta["organism"].map(norm_organism)
+    # Guarantee a UNIQUE isolate identity per source row BEFORE melting.
+    # Use the dataset's real id where present, else the source row position.
+    # Always prefix with the dataset name so ids never collide across datasets.
+    # This is essential: after melting to long format, isolate identity can no
+    # longer be recovered, so it must be fixed here (esp. SIDERO, which has no
+    # native id column).
+    raw_id = meta["isolate_id"]
+    row_pos = pd.Series(range(len(df)), index=meta.index).astype("string")
+    meta["isolate_id"] = (
+        f"{dataset}:" + raw_id.astype("string").fillna("row" + row_pos)
+    )
     # Age/gender are encoded differently across datasets (ATLAS uses age BANDS
     # like '61+', KEYSTONE uses numeric age). Keep them as consistent strings so
     # they concatenate cleanly; we are not doing arithmetic on them in the core

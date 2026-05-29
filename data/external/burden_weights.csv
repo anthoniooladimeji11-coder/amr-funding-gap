@@ -1,0 +1,27 @@
+pathogen,gbd_region,metric,value,uncertainty_low,uncertainty_high,year,source_vintage,burden_type,status,source_note
+# ============================================================================
+# BURDEN WEIGHTS - GRAM 2019 (Lancet 2022), VERIFIED line-by-line against the
+# supplementary appendix Table S22 ("Global deaths and DALYs ... attributable
+# to bacterial antimicrobial resistance by pathogen-drug combination, 2019").
+#
+# Row used per pathogen: "Resistance to one or more antibiotics" (the
+# per-pathogen total across all drug classes). ATTRIBUTABLE columns (NOT
+# associated). Counts expanded from the appendix's "thousands" units.
+#
+# Scope: GLOBAL per pathogen, matching the funding side (FAP global per genus).
+# Six pathogens = GRAM's leading-six (responsible for ~73% of attributable
+# AMR deaths in 2019).
+# Metrics: deaths (HEADLINE) and dalys (SENSITIVITY).
+# ============================================================================
+escherichia coli,Global,deaths,219000,152000,316000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable deaths
+escherichia coli,Global,dalys,7520000,5270000,10500000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable DALYs
+staphylococcus aureus,Global,deaths,178000,104000,280000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable deaths
+staphylococcus aureus,Global,dalys,5870000,3550000,9220000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable DALYs
+klebsiella pneumoniae,Global,deaths,193000,130000,272000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable deaths
+klebsiella pneumoniae,Global,dalys,8200000,5550000,11400000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable DALYs
+acinetobacter baumannii,Global,deaths,132000,75700,213000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable deaths
+acinetobacter baumannii,Global,dalys,3670000,2150000,5760000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable DALYs
+streptococcus pneumoniae,Global,deaths,122000,82400,166000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable deaths
+streptococcus pneumoniae,Global,dalys,6110000,4050000,8330000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable DALYs
+pseudomonas aeruginosa,Global,deaths,84600,53000,127000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable deaths
+pseudomonas aeruginosa,Global,dalys,3050000,1980000,4530000,2019,GRAM 2019 (Lancet) Table S22,attributable,OK,Resistance to one or more antibiotics; attributable DALYs

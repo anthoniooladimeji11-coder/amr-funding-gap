@@ -340,3 +340,47 @@ burden weights. This is a sourcing task (like the breakpoints were).
   - Funding-year attribution rule finalize (D-015, leaning Start Year).
   - Verify official Vivli EOI/prize/rules details before relying on them.
   - 5-page report limit incl. figures — design figures early.
+
+### D-017 — GMI built (Step 4 result, headline finding) (2026-05-28)
+**What:** Global Misalignment Index built over 6 leading GRAM 2019 pathogens
+(~73% of attributable AMR deaths). Both sides at GLOBAL pathogen resolution
+(D-005, D-016). FAP funding totals aggregated across all years (D-015 start-year
+attribution); burden = 2019 attributable, GRAM 2019 Table S22.
+
+**Headline (base funding vs attributable deaths, 6 pathogens):**
+| pathogen        | funding % | burden % | misalignment (pp) |
+|-----------------|-----------|----------|--------------------|
+| K. pneumoniae   | 8.4       | 20.8     | -12.4 (most under) |
+| E. coli         | 16.8      | 23.6     | -6.8               |
+| A. baumannii    | 8.1       | 14.2     | -6.1               |
+| S. pneumoniae   | 19.1      | 13.1     | +5.9               |
+| S. aureus       | 26.8      | 19.2     | +7.6               |
+| P. aeruginosa   | 20.9      | 9.1      | +11.7 (most over)  |
+
+**GMI = 25.3%** (half-sum-abs misalignment, base/deaths). Robustness grid:
+                  deaths   dalys
+  base            25.3     23.0
+  sens_prop       19.1     20.2
+  sens_equal      15.7     16.7
+
+The qualitative pattern (Gram-neg underfunded vs burden; legacy famous pathogens
+overfunded) is robust across all 6 variants. Deaths vs DALYs barely moves GMI.
+Sensitivity (broad-pool redistribution) shrinks GMI to ~16% but does NOT
+reverse the ordering — even under maximally generous redistribution, the
+misalignment is substantial.
+
+**Caveats stated openly in writeup:**
+  - Temporal: funding is cumulative, burden is 2019 cross-section. Framing:
+    "cumulative R&D investment vs the burden it is meant to address."
+  - Streptococcus genus->species fit is the loosest (genus includes non-
+    pneumoniae spp.); S. pneumoniae's +5.9 pp has the most uncertainty.
+    Other 5 mappings clean.
+  - GMI value depends on pathogen-set scope (6 = ~73% of attributable AMR
+    deaths; defensible but stated).
+  - Genus(funding)-vs-species(burden) asymmetry: declared (D-005); reasonable
+    proxy for 5/6 pathogens.
+
+**Files:**
+  - src/amr_gap/gmi.py (Step 4b)
+  - data/processed/gmi.parquet (36 rows: 6 pathogens x 3 fund cases x 2 metrics)
+  - src/amr_gap/fap.py (UPDATED to 6 pathogens, two separate Gram pools)

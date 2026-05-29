@@ -384,3 +384,47 @@ misalignment is substantial.
   - src/amr_gap/gmi.py (Step 4b)
   - data/processed/gmi.parquet (36 rows: 6 pathogens x 3 fund cases x 2 metrics)
   - src/amr_gap/fap.py (UPDATED to 6 pathogens, two separate Gram pools)
+
+### D-018 — Pipeline cross-flag built (Step 4c, sharpens headline) (2026-05-29)
+**What:** For each pathogen, count Hub late-stage therapeutic projects
+('Therapeutics / Development' OR 'Therapeutics / Approval & Post approval'
+in Categories), then cross with GMI misalignment to assign actionable
+QUADRANTS.
+
+**Definition:** Late-stage = Development + Approval (WHO/PEW pipeline standard).
+251 of 18,853 Hub projects qualify (~1.3%); realistic given global antibacterial
+pipeline scale.
+
+**Quadrant rule:** misalignment<0 = underfunded; pipeline_share > median (=18.4%)
+= pipeline-rich. Four quadrants: NEGLECTED, SERVED DESPITE LOW FUNDING,
+INVESTMENT-TRANSLATION GAP, WELL-RESOURCED.
+
+**Result (base funding vs attributable deaths):**
+| pathogen        | f% | b% | f-b pp | pipeline % | quadrant                  |
+|-----------------|----|----|--------|------------|---------------------------|
+| K. pneumoniae   | 8  | 21 | -12.4  | 11.8       | NEGLECTED                 |
+| E. coli         | 17 | 24 |  -6.8  | 25.0       | SERVED DESPITE LOW FUNDING|
+| A. baumannii    | 8  | 14 |  -6.1  |  5.3       | NEGLECTED                 |
+| S. pneumoniae   | 19 | 13 |  +5.9  |  2.6       | INVESTMENT-TRANSLATION GAP|
+| S. aureus       | 27 | 19 |  +7.6  | 30.3       | WELL-RESOURCED            |
+| P. aeruginosa   | 21 |  9 | +11.7  | 25.0       | WELL-RESOURCED            |
+
+**Strongest single finding:** A. baumannii has only 4 late-stage projects globally
+(5.3% of pipeline) against 14% of attributable AMR deaths — doubly neglected.
+K. pneumoniae also NEGLECTED. These map to WHO Priority 1 critical-priority
+carbapenem-resistant Gram-negatives.
+
+**Caveats stated:**
+  - Project-count proxies candidate-count (one drug may have multiple projects);
+    fine for relative comparison, biases all pathogens similarly.
+  - Small N: 251 projects across 6 pathogens; per-pathogen counts (esp. Ab=4,
+    S. pneumoniae=2) carry sampling noise. Quadrant assignments are
+    directionally robust; marginal cases sensitive to threshold choice.
+  - Median split for pipeline-thin/rich is a choice; could alternatively split
+    at burden-share-expected. Worth running as sensitivity.
+  - Streptococcus pneumoniae INVESTMENT-TRANSLATION GAP is partly genuine
+    (vaccine vs new-antibiotic R&D mix) and partly a genus->species artifact
+    (Streptococcus funding includes non-pneumoniae species). Genus caveat
+    (D-005) bites hardest here.
+
+**File:** src/amr_gap/pipeline.py; data/processed/pipeline_cross.parquet

@@ -1,7 +1,6 @@
 # A Global Misalignment Index for AMR R&D Funding: Quantifying Where Investment Falls Short of Burden, and Where the Pipeline Compounds the Gap
 
 **Team:** Anthonio Oladimeji, Babatunde Olowu
-**Submission category:** AMR Visionary Award; Global AMR R&D Hub Cross-Domain Award
 **Repository:** github.com/anthoniooladimeji11-coder/amr-funding-gap
 
 ---

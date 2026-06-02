@@ -428,3 +428,109 @@ carbapenem-resistant Gram-negatives.
     (D-005) bites hardest here.
 
 **File:** src/amr_gap/pipeline.py; data/processed/pipeline_cross.parquet
+
+### D-019 — Step 3 Bayesian XDR projection and projected 2030 GMI (2026-06-01)
+
+**What:** Temporal extension of the GMI. Bayesian random-walk Beta-binomial model
+on the logit of XDR prevalence, fit per pathogen (Klebsiella pneumoniae,
+Acinetobacter baumannii), with projection to 2030 and projected GMI computed
+under the assumption that attributable burden scales with XDR prevalence.
+
+**Model spec (`src/amr_gap/stan/xdr_rw.stan`):**
+  y_t ~ Binomial(n_t, inv_logit(theta_t))
+  theta_t = theta_{t-1} + epsilon_t,    epsilon_t ~ Normal(0, sigma)
+  Priors: theta_0 ~ N(0, 2), sigma ~ Half-N(0, 0.5), z ~ std_normal (non-centred).
+  Forecast: continues the random walk with posterior sigma; uncertainty grows
+  predictably with horizon.
+
+**Scope (Path C, chosen for representativeness reasons):** Kp and Ab only. The
+ATLAS dataset (largest in our register) carries broad global coverage for these
+two pathogens; LCA phenotypes for them are locked (D-013, D-014). Extending to
+the other four GRAM pathogens would require LCA fits we haven't built and
+raises representativeness questions we cannot defend at submission resolution.
+
+**XDR class identification:** programmatic, by profile rather than class number.
+For each LCA solution, the class with the highest mean P(non-susceptible|class)
+across the panel is labelled XDR (refuses to label if max mean < 0.7). This makes
+the pipeline robust to arbitrary class numbering changes across LCA reruns.
+  - Ab XDR class: ~96-100% NS to amik/gent/mero/imip/levo; colistin 4.7%; class
+    size ~52% of isolates.
+  - Kp XDR class: carbapenems 96-100%, FQs 98-100%, aztreonam 96%, amik 63%,
+    gent 71%, colistin 19%; class size ~13% of isolates.
+
+**Year exclusion:** 2025 dropped from the fit as incomplete reporting (the most
+recent extract caught only early-reporting sites). Last reliable year = 2024.
+Both pathogens fit through 2024, projected 2025-2030.
+
+**Diagnostics (clean):** R-hat satisfactory for all parameters in both fits;
+ESS satisfactory; treedepth satisfactory; E-BFMI satisfactory.
+  - Ab: 0 divergent transitions; sigma posterior mean = 0.30 (SD 0.06).
+  - Kp: 6/8000 (0.07%) divergent transitions, below the 0.5% threshold of
+    concern; sigma posterior mean = 0.17 (SD 0.04).
+The "binomial_logit_lpmf: probability inf/-inf" warnings during sampling are
+non-fatal generated-quantities artefacts when the RW forecast occasionally
+draws extreme logit values; they do not affect the posterior.
+
+**Projection results (year, mean, 80% UI):**
+| year | Ab XDR %       | Kp XDR %       |
+|------|----------------|----------------|
+| 2024 | 63.0 (61.6, 64.5)  observed | 18.6 (17.9, 19.1) observed |
+| 2025 | 62.7 (53.5, 71.6) | 18.7 (15.4, 22.1) |
+| 2030 | 61.5 (39.8, 81.4) | 19.4 (11.9, 27.7) |
+
+The random walk correctly tracks the Ab saturation pattern (~63-65% plateau
+since 2018) and the Kp gradual rise (~1.5pp/year through the late period).
+Mean projection for Ab essentially flat with wide UI; mean for Kp drifts up
+modestly with widening UI.
+
+**Projected GMI computation (`src/amr_gap/gmi_projected.py`):**
+
+Assumption (Option 1, stated openly): per-pathogen attributable burden in year T
+scales with that pathogen's XDR prevalence relative to 2019:
+  burden(X, T) = burden(X, 2019) * [prev(X, T) / prev(X, 2019)]
+The four unprojected pathogens hold their 2019 burdens. Funding shares held at
+current cumulative values. Uncertainty propagated by recomputing the GMI per
+posterior draw (8,000 draws).
+
+**Result:**
+  - Current GMI (2019 burden, cumulative funding):       25.3%
+  - Projected GMI 2030 (mean):                            27.5%
+  - 80% credible interval:                                23.0% to 32.0%
+  - 95% credible interval:                                20.7% to 35.1%
+
+The mean widens modestly; the 80% UI overlaps the current value, meaning we
+cannot be highly confident the index will *worsen*, only that the central
+estimate drifts upward. The honest report framing is "modest projected widening
+with uncertainty."
+
+**Per-pathogen 2030 misalignment changes (vs current):**
+| pathogen        | f-b pp 2019 | f-b pp 2030 (mean) | 80% UI         |
+|-----------------|-------------|--------------------|----------------|
+| K. pneumoniae   | -12.4       | -17.3              | -25.5 to -9.3  |
+| A. baumannii    | -6.1        | -4.5               | -8.4 to -0.2   |
+| E. coli         | -6.8        | -5.6               | -8.2 to -3.0   |
+| S. pneumoniae   | +5.9        | +6.6               | +5.1 to +8.0   |
+| S. aureus       | +7.6        | +8.6               | +6.5 to +10.7  |
+| P. aeruginosa   | +11.7       | +12.2              | +11.2 to +13.2 |
+
+Kp underfunding worsens; Ab narrows slightly (arithmetic consequence of Kp's
+growing share); others drift as the burden composition shifts. The projection
+is driven by one signal (Kp XDR continues to rise) and its implications cascade
+through the share normalisation.
+
+**Files:**
+  - src/amr_gap/xdr_prep.py (Step 3a: time series prep)
+  - src/amr_gap/stan/xdr_rw.stan (Stan model)
+  - src/amr_gap/xdr_project.py (Step 3b: fit + project)
+  - src/amr_gap/gmi_projected.py (Step 3c: projected GMI)
+  - data/processed/xdr_projection_{acba,klpn}_draws.parquet (8,000 draws each)
+  - data/processed/gmi_projected_2030.parquet (per-draw per-pathogen output)
+
+**Caveats stated in report:**
+  - Burden-scales-with-prevalence is a modelling assumption, not a measured
+    relationship. Sensitivity to alternative scalings is not explored at submission.
+  - Only Kp and Ab projected; other four pathogens held at 2019 burden.
+  - Random walk is conservative by design: it cannot extrapolate a trend, only
+    forecast continued movement at recent rates. The Kp projection is therefore
+    less alarming than a naive trend extrapolation would suggest, which we
+    report as a feature (no over-extrapolation) rather than a limitation.
